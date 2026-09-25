@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: qbc-rag-security-analyzer
+    rootDir: .
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: QBC_SECURITY_DB
+        value: /data/qbc_security.sqlite3
+      - key: QBC_CORS_ORIGINS
+        value: "*"
