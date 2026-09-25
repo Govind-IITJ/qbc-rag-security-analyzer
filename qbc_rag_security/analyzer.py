@@ -7,6 +7,7 @@ PATTERNS = [
     ("prompt_injection", "Prompt Injection", 0.96, [
         r"\bignore (?:all|any|the) previous instructions\b",
         r"\bdisregard (?:all|any|the) (?:previous|prior) instructions\b",
+        r"\bdisregard (?:all|any|the )?previous policy\b",
         r"\bfollow this document instead\b",
         r"\bdo not follow\b.*\binstructions\b",
         r"\boverride\b.*\b(instructions|policy|security)\b",
@@ -62,10 +63,16 @@ PATTERNS = [
         r"(?:\b\w+\b\s+){8,}(?:\b\w+\b\s+){8,}",
         r"\brepeat\b.*\b(?:ranking|context|retrieve)\b",
     ]),
+    ("duplicate_source", "Duplicate Source Manipulation", 0.80, [
+        r"\bsame claim\b.*\brepeated\b.*\battacker\b",
+        r"\bduplicate\b.*\bsource\b",
+        r"\brepeated\b.*\battacker copies\b",
+    ]),
     ("knowledge_poisoning", "Knowledge Poisoning", 0.84, [
         r"\b(?:policy|limit|rule)\b.*\b(?:999999|unlimited|1\s*INR)\b",
         r"\bofficial policy now says\b",
         r"\ballow everyone\b",
+        r"\b(?:employees|staff|users|members)\b.*\b(?:disclose|reveal|share|expose)\b.*\b(?:all|every|any)\b.*\b(?:credentials|secrets|passwords|keys)\b",
     ]),
     ("provenance_spoofing", "Provenance Spoofing", 0.88, [
         r"\bsource:\s*official\b",
