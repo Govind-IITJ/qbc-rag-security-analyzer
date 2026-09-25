@@ -58,6 +58,69 @@ def analyze(req: AnalyzeRequest):
         c.commit()
     return {"success":True,**result}
 
+
+class BatchAnalyzeRequest(BaseModel):
+    questions: list[str] = Field(..., min_length=1, max_length=100)
+    max_question_length: int = Field(default=4000, ge=1, le=10000)
+
+
+@app.post("/api/batch-analyze")
+def batch_analyze(req: BatchAnalyzeRequest):
+    results = []
+
+    safe_count = 0
+    review_count = 0
+    reject_count = 0
+    total_risk = 0.0
+
+    for index, question in enumerate(req.questions, start=1):
+        question = question.strip()
+
+        if not question:
+            continue
+
+        question = question[:req.max_question_length]
+
+        result = analyze_query(question)
+
+        decision = str(result.get("decision", "REVIEW")).upper()
+        risk = float(result.get("risk_score", result.get("risk", 0.0)))
+
+        if decision == "SAFE":
+            safe_count += 1
+        elif decision == "REJECT":
+            reject_count += 1
+        else:
+            review_count += 1
+
+        total_risk += risk
+
+        results.append({
+            "index": index,
+            "question": question,
+            "decision": decision,
+            "risk_score": risk,
+            "findings": result.get("findings", [])
+        })
+
+    processed = len(results)
+
+    return {
+        "success": True,
+        "total_submitted": len(req.questions),
+        "total_processed": processed,
+        "summary": {
+            "safe": safe_count,
+            "review": review_count,
+            "reject": reject_count,
+            "average_risk": round(total_risk / processed, 4) if processed else 0.0,
+            "safe_rate": round(safe_count / processed, 4) if processed else 0.0,
+            "review_rate": round(review_count / processed, 4) if processed else 0.0,
+            "reject_rate": round(reject_count / processed, 4) if processed else 0.0
+        },
+        "results": results
+    }
+
 @app.get("/api/history")
 def history(limit:int=100):
     limit=max(1,min(500,limit))
@@ -100,6 +163,11 @@ def summary():
     f1=2*prec*rec/(prec+rec) if prec+rec else 0
     fpr=fp/(fp+tn) if fp+tn else 0
     return {"success":True,"tests":total,"accuracy":round(acc*100,2),"precision":round(prec*100,2),"recall":round(rec*100,2),"f1":round(f1*100,2),"false_positive_rate":round(fpr*100,2),"confusion_matrix":{"tp":tp,"tn":tn,"fp":fp,"fn":fn}}
+
+
+@app.get("/batch")
+def batch_page():
+    return FileResponse(FRONTEND/"batch.html")
 
 @app.get("/")
 def index():
