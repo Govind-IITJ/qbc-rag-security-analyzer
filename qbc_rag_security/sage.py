@@ -163,6 +163,10 @@ def govern(base: dict[str, Any], intent: dict[str, Any], intent_meta: dict[str, 
         final_risk = max(final_risk, 0.92)
         reasons.append("protected-instruction-effect hard gate triggered")
 
+    if effect in critical_effects and sec_conf >= 0.80 and not bool(sec.get("educational_only")):
+        final_risk = max(final_risk, 0.92)
+        reasons.append("high-confidence critical semantic-effect gate")
+
     if final_risk < 0.30:
         decision = "SAFE"
     elif final_risk < 0.70:

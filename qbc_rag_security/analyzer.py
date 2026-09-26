@@ -91,6 +91,9 @@ PATTERNS = [
         r"\bindependent official source says\b",
         r"\bindependent source\b.*\battacker\b",
     ]),
+    ("duplicate_source", "Duplicate Source Poisoning", 0.80, [
+        r"\bsame claim repeated by attacker copies\b",
+    ]),
     ("context_flooding", "Context Flooding", 0.86, [
         r"(?:\bignore\b|\breveal secrets\b).{200,}",
     ]),
