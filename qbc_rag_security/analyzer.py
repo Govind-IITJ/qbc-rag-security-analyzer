@@ -24,6 +24,13 @@ PATTERNS = [
         r"\byour new role\b",
         r"\bpretend to be\b.*\badmin",
     ]),
+    ("protected_instruction_disclosure", "Protected Instruction Disclosure", 0.99, [
+        r"\b(reveal|show|disclose|print|give)\b.*\b(hidden|system|internal)\b.*\b(instructions?|prompt)\b",
+    ]),
+    ("security_bypass", "Security Boundary Bypass", 0.99, [
+        r"\boverride\b.*\baccess controls?\b",
+        r"\bevade\b.*\baudit controls?\b",
+    ]),
     ("secret_exfiltration", "Secret Exfiltration", 0.99, [
         r"\breveal\b.*\b(api keys?|passwords?|credentials?|secrets?)\b",
         r"\bshow\b.*\b(private keys?|credentials?|access tokens?)\b",
