@@ -145,6 +145,24 @@ def govern(base: dict[str, Any], intent: dict[str, Any], intent_meta: dict[str, 
         final_risk = max(final_risk, 0.92)
         reasons.append("malicious critical-effect hard gate triggered")
 
+    # Protected instruction disclosure is critical even when the model
+    # does not classify the request as malicious.
+    if (
+        protected == "system_instruction"
+        and sec_conf >= 0.80
+        and operational
+    ):
+        final_risk = max(final_risk, 0.92)
+        reasons.append("protected-instruction disclosure hard gate triggered")
+
+    if (
+        effect == "protected_instruction_disclosure"
+        and sec_conf >= 0.80
+        and operational
+    ):
+        final_risk = max(final_risk, 0.92)
+        reasons.append("protected-instruction-effect hard gate triggered")
+
     if final_risk < 0.30:
         decision = "SAFE"
     elif final_risk < 0.70:
