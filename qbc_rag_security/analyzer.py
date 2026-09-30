@@ -278,16 +278,64 @@ def _rule_analyze_query(query: str) -> dict[str, Any]:
 # The original deterministic analyzer remains intact as the safety baseline.
 def analyze_query(query: str) -> dict[str, Any]:
     base = _rule_analyze_query(query)
+
+    # Fast trained first-pass classifier; never final authority.
+    try:
+        import joblib
+        student = joblib.load("ml_security/models/qbc_sage_student_v5.joblib")
+        probabilities = student.predict_proba([query])[0]
+        classes = student.classes_
+        best = int(probabilities.argmax())
+        base["student_model"] = {
+            "available": True,
+            "model_version": "qbc-sage-student-v5",
+            "prediction": str(classes[best]),
+            "confidence": round(float(probabilities[best]), 4),
+            "probabilities": {
+                str(c): round(float(p), 4)
+                for c, p in zip(classes, probabilities)
+            },
+        }
+    except Exception as exc:
+        base["student_model"] = {
+            "available": False,
+            "model_version": "qbc-sage-student-v5",
+            "error": type(exc).__name__,
+        }
+
     try:
         from .intent_engine import infer_intent
         from .sage import govern
+
         intent, meta = infer_intent(query)
+
+        # Student v2 is advisory context for semantic governance.
+        if base.get("student_model", {}).get("available"):
+            meta = dict(meta or {})
+            meta["student_model"] = base["student_model"]
+
         return govern(base, intent, meta)
+
     except Exception as exc:
-        base["semantic_intent"] = {"security_intent": "unknown", "confidence": 0.0}
-        base["semantic_model"] = {"available": False, "provider": "ollama", "error": type(exc).__name__}
-        base["reasoning"] = {"rule_risk": base["risk_score"], "semantic_risk": 0.0, "fusion": "deterministic fallback", "reasons": ["semantic layer failed; deterministic baseline retained"], "final_authority": "deterministic QBC-SAGE security gates"}
-        base["engine_version"] = "4.0.0-qbc-sage-semantic"
+        base["semantic_intent"] = {
+            "security_intent": "unknown",
+            "confidence": 0.0,
+        }
+        base["semantic_model"] = {
+            "available": False,
+            "provider": "ollama",
+            "error": type(exc).__name__,
+        }
+        base["reasoning"] = {
+            "rule_risk": base["risk_score"],
+            "semantic_risk": 0.0,
+            "fusion": "deterministic fallback",
+            "reasons": [
+                "semantic layer failed; deterministic baseline retained"
+            ],
+            "final_authority": "deterministic QBC-SAGE security gates",
+        }
+        base["engine_version"] = "4.1.0-qbc-sage-semantic-effect"
         base["external_llm_used"] = False
         base["local_llm_used"] = False
         return base

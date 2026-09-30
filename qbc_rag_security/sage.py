@@ -89,6 +89,21 @@ def govern(base: dict[str, Any], intent: dict[str, Any], intent_meta: dict[str, 
         final_risk = rule_risk
         reasons.append("local semantic model unavailable; deterministic baseline retained")
 
+    # QBC-SAGE v4.2 Student fail-closed fallback.
+    # A highly confident trained ATTACK prediction must not collapse to SAFE
+    # when Ollama is unavailable or times out.
+    student = intent_meta.get("student_model") or {}
+    student_pred = str(student.get("prediction") or "")
+    student_conf = float(student.get("confidence") or 0.0)
+    semantic_available = bool(intent_meta.get("available"))
+    if student_pred == "ATTACK" and not semantic_available:
+        if student_conf >= 0.99:
+            final_risk = max(final_risk, 0.92)
+            reasons.append("student high-confidence ATTACK fail-closed gate")
+        elif student_conf >= 0.60:
+            final_risk = max(final_risk, 0.40)
+            reasons.append("student moderate-confidence ATTACK review gate")
+
     # QBC-SAGE v4.1 semantic-effect hard gates.
     # The local LLM provides evidence; these gates retain deterministic authority.
     sec = intent.get("security_adjudication") or {}
@@ -192,7 +207,7 @@ def govern(base: dict[str, Any], intent: dict[str, Any], intent_meta: dict[str, 
         "reasons": reasons,
         "final_authority": "deterministic QBC-SAGE security gates",
     }
-    base["engine_version"] = "4.1.0-qbc-sage-semantic-effect"
+    base["engine_version"] = "4.2.0-qbc-sage-student-failclosed"
     base["external_llm_used"] = False
     base["local_llm_used"] = bool(intent_meta.get("available"))
     return base
