@@ -1,0 +1,57 @@
+{
+  "version": "qbc-sage-student-v6",
+  "validation_accuracy": 0.9683703703703703,
+  "training_rows": 121500,
+  "validation_rows": 13500,
+  "report": {
+    "ATTACK": {
+      "precision": 0.9901477832512315,
+      "recall": 0.9826666666666667,
+      "f1-score": 0.9863930403747491,
+      "support": 4500.0
+    },
+    "REVIEW": {
+      "precision": 0.9597688375194487,
+      "recall": 0.9595555555555556,
+      "f1-score": 0.9596621846871874,
+      "support": 4500.0
+    },
+    "SAFE": {
+      "precision": 0.955457552370452,
+      "recall": 0.9628888888888889,
+      "f1-score": 0.9591588267847261,
+      "support": 4500.0
+    },
+    "accuracy": 0.9683703703703703,
+    "macro avg": {
+      "precision": 0.9684580577137107,
+      "recall": 0.9683703703703704,
+      "f1-score": 0.9684046839488875,
+      "support": 13500.0
+    },
+    "weighted avg": {
+      "precision": 0.9684580577137107,
+      "recall": 0.9683703703703703,
+      "f1-score": 0.9684046839488877,
+      "support": 13500.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      4333,
+      149,
+      18
+    ],
+    [
+      156,
+      4318,
+      26
+    ],
+    [
+      46,
+      32,
+      4422
+    ]
+  ],
+  "model_path": "ml_security\\v6\\models\\qbc_sage_student_v6.joblib"
+}

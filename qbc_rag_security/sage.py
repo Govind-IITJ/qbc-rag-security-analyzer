@@ -96,10 +96,10 @@ def govern(base: dict[str, Any], intent: dict[str, Any], intent_meta: dict[str, 
     student_pred = str(student.get("prediction") or "")
     student_conf = float(student.get("confidence") or 0.0)
     semantic_available = bool(intent_meta.get("available"))
-    if student_pred == "ATTACK" and not semantic_available:
-        if student_conf >= 0.99:
+    if student_pred == "ATTACK":
+        if student_conf >= 0.98:
             final_risk = max(final_risk, 0.92)
-            reasons.append("student high-confidence ATTACK fail-closed gate")
+            reasons.append("student high-confidence ATTACK governance gate")
         elif student_conf >= 0.60:
             final_risk = max(final_risk, 0.40)
             reasons.append("student moderate-confidence ATTACK review gate")

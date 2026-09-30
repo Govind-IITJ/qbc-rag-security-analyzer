@@ -1,0 +1,28 @@
+{
+  "version": "qbc-sage-v6",
+  "seed": 20260930,
+  "rows": 135000,
+  "class_distribution": {
+    "ATTACK": 45000,
+    "SAFE": 45000,
+    "REVIEW": 45000
+  },
+  "locked_test_rows": 232,
+  "locked_test_policy": "normalized-query exclusion; test never used for training",
+  "hard_cases": 33,
+  "target_per_class": 45000,
+  "canonical_sources": [
+    "ml_security\\data\\all_generated.csv",
+    "ml_security\\data\\realistic_all.csv",
+    "ml_security\\data\\train.csv",
+    "ml_security\\data\\validation.csv",
+    "ml_security\\data\\test.csv",
+    "ml_security\\data\\large\\qbc_sage_100k.csv",
+    "ml_security\\data\\large\\qbc_sage_augmented_100k.csv",
+    "ml_security\\data\\large\\qbc_sage_semantic_100k.csv",
+    "ml_security\\data\\large\\qbc_sage_v4_contrastive.csv",
+    "ml_security\\data\\large\\qbc_sage_v5_hybrid.csv",
+    "ml_security\\data\\dataset\\QBC-RAG-1200-Query-Dataset\\QBC-RAG_1200_train.csv",
+    "ml_security\\data\\dataset\\QBC-RAG-1200-Query-Dataset\\QBC-RAG_1200_validation.csv"
+  ]
+}

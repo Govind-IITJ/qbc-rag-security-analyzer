@@ -282,13 +282,13 @@ def analyze_query(query: str) -> dict[str, Any]:
     # Fast trained first-pass classifier; never final authority.
     try:
         import joblib
-        student = joblib.load("ml_security/models/qbc_sage_student_v5.joblib")
-        probabilities = student.predict_proba([query])[0]
-        classes = student.classes_
+        student = joblib.load("ml_security/v6/models/qbc_sage_student_v6.joblib")
+        probabilities = (student["model"].predict_proba(student["features"].transform([query]))[0] if isinstance(student, dict) else student.predict_proba([query])[0])
+        classes = student["labels"] if isinstance(student, dict) else student.classes_
         best = int(probabilities.argmax())
         base["student_model"] = {
             "available": True,
-            "model_version": "qbc-sage-student-v5",
+            "model_version": "qbc-sage-student-v6",
             "prediction": str(classes[best]),
             "confidence": round(float(probabilities[best]), 4),
             "probabilities": {
@@ -299,7 +299,7 @@ def analyze_query(query: str) -> dict[str, Any]:
     except Exception as exc:
         base["student_model"] = {
             "available": False,
-            "model_version": "qbc-sage-student-v5",
+            "model_version": "qbc-sage-student-v6",
             "error": type(exc).__name__,
         }
 
