@@ -104,6 +104,19 @@ def govern(base: dict[str, Any], intent: dict[str, Any], intent_meta: dict[str, 
             final_risk = max(final_risk, 0.40)
             reasons.append("student moderate-confidence ATTACK review gate")
 
+    # V6 operational security-evasion hard gate.
+    # Explicit requests to disable/hide security monitoring are rejected.
+    qtext = str(base.get("query") or "").lower()
+    evasion_patterns = (
+        "disable audit logging", "disable security logging",
+        "disable logging", "delete security logs",
+        "hide the activity", "hide activity from administrators",
+        "evade security monitoring", "avoid detection by security monitoring",
+    )
+    if any(p in qtext for p in evasion_patterns):
+        final_risk = max(final_risk, 0.92)
+        reasons.append("V6 operational security-evasion hard gate")
+
     # QBC-SAGE v4.1 semantic-effect hard gates.
     # The local LLM provides evidence; these gates retain deterministic authority.
     sec = intent.get("security_adjudication") or {}
