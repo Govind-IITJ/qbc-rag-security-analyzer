@@ -314,9 +314,41 @@ def analyze_query(query: str) -> dict[str, Any]:
             meta = dict(meta or {})
             meta["student_model"] = base["student_model"]
 
-        return govern(base, intent, meta)
+        return govern(base, intent, meta, query)
 
     except Exception as exc:
+        student = base.get("student_model", {})
+        prediction = student.get("prediction")
+        confidence = float(student.get("confidence", 0.0) or 0.0)
+        qtext = str(query).lower()
+
+        forced_attack = any(x in qtext for x in (
+            "disable audit logging",
+            "disable security logging",
+            "delete security logs",
+            "hide unauthorized activity",
+            "alter evidence",
+            "copy the production database",
+            "grant this account administrator",
+            "export all customer records",
+            "get around the application access controls",
+        ))
+
+        if forced_attack:
+            base["risk_score"] = max(float(base["risk_score"]), 0.92)
+            base["decision"] = "REJECT"
+            reason = "semantic layer failed; V6 explicit attack fail-closed gate"
+        elif prediction == "ATTACK" and confidence >= 0.90:
+            base["risk_score"] = max(float(base["risk_score"]), 0.92)
+            base["decision"] = "REJECT"
+            reason = "semantic layer failed; high-confidence V6 ATTACK fail-closed gate"
+        elif prediction == "ATTACK" and confidence >= 0.60:
+            base["risk_score"] = max(float(base["risk_score"]), 0.40)
+            base["decision"] = "REVIEW"
+            reason = "semantic layer failed; moderate-confidence V6 ATTACK review gate"
+        else:
+            reason = "semantic layer failed; deterministic baseline retained"
+
         base["semantic_intent"] = {
             "security_intent": "unknown",
             "confidence": 0.0,
@@ -329,13 +361,11 @@ def analyze_query(query: str) -> dict[str, Any]:
         base["reasoning"] = {
             "rule_risk": base["risk_score"],
             "semantic_risk": 0.0,
-            "fusion": "deterministic fallback",
-            "reasons": [
-                "semantic layer failed; deterministic baseline retained"
-            ],
+            "fusion": "V6 student fail-closed fallback",
+            "reasons": [reason],
             "final_authority": "deterministic QBC-SAGE security gates",
         }
-        base["engine_version"] = "4.1.0-qbc-sage-semantic-effect"
+        base["engine_version"] = "4.2.0-qbc-sage-student-failclosed"
         base["external_llm_used"] = False
         base["local_llm_used"] = False
         return base
