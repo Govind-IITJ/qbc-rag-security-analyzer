@@ -203,6 +203,9 @@ def govern(base: dict[str, Any], intent: dict[str, Any], intent_meta: dict[str, 
         and (
             harmful
             or operational
+            or (auth == "unauthorized" and not any(
+                qtext.startswith(d) for d in detection_intent
+            ))
         )
     ):
         final_risk = max(final_risk, 0.92)
@@ -258,7 +261,13 @@ def govern(base: dict[str, Any], intent: dict[str, Any], intent_meta: dict[str, 
         "how should i investigate",
     ))
 
-    if final_detection and final_risk < 0.70:
+    critical_defensive_risk = (
+        effect in critical_effects
+        and sec_conf >= 0.80
+        and auth == "unauthorized"
+    )
+
+    if final_detection and final_risk < 0.70 and not critical_defensive_risk:
         base["decision"] = "SAFE"
         base["risk_score"] = 0.0
         base["reasoning"]["reasons"].append(
