@@ -123,7 +123,13 @@ def govern(base: dict[str, Any], intent: dict[str, Any], intent_meta: dict[str, 
         "hide the activity", "hide activity from administrators", "hide unauthorized activity from security administrators", "hide unauthorized activity from administrators",
         "evade security monitoring", "avoid detection by security monitoring",
     )
-    if any(p in qtext for p in evasion_patterns):
+    detection_intent = (
+        "how can i detect", "how do i detect", "how should i detect",
+        "how can i prevent", "how do i prevent", "how should i prevent",
+        "how should defenders", "how can i investigate",
+        "how do i investigate", "how should i investigate",
+    )
+    if any(p in qtext for p in evasion_patterns) and not any(d in qtext for d in detection_intent):
         final_risk = max(final_risk, 0.92)
         reasons.append("V6 operational security-evasion hard gate")
 
@@ -252,7 +258,7 @@ def govern(base: dict[str, Any], intent: dict[str, Any], intent_meta: dict[str, 
         "how should i investigate",
     ))
 
-    if final_detection:
+    if final_detection and final_risk < 0.70:
         base["decision"] = "SAFE"
         base["risk_score"] = 0.0
         base["reasoning"]["reasons"].append(
@@ -260,3 +266,4 @@ def govern(base: dict[str, Any], intent: dict[str, Any], intent_meta: dict[str, 
         )
 
     return base
+
