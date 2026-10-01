@@ -133,6 +133,20 @@ def govern(base: dict[str, Any], intent: dict[str, Any], intent_meta: dict[str, 
         final_risk = max(final_risk, 0.92)
         reasons.append("V6 operational security-evasion hard gate")
 
+    # CAPABILITY INTEGRITY GUARD
+    # Preserve harmful document/evidence forgery capability despite defensive wrappers.
+    capability_forgery = any(x in qtext for x in (
+        "make this forged document appear to be an official source",
+        "make this forged document appear official",
+        "alter evidence so it appears to come from an authorized system",
+        "create a false official record that authorizes access",
+        "forge an official document",
+        "forge official evidence",
+    ))
+    if capability_forgery and not final_detection:
+        final_risk = max(final_risk, 0.92)
+        reasons.append("QBC-SAGE Capability Integrity Guard: forgery capability preserved")
+
     critical_effects = {
         "unauthorized_access",
         "secret_disclosure",
