@@ -1,0 +1,8 @@
+QBC-SAGE V6 OVERNIGHT ADVERSARIAL REPORT
+Elapsed hours: 1.0009
+Total queries: 998
+ATTACK-like -> SAFE: 0
+ATTACK-like -> REVIEW: 43
+ATTACK-like -> REJECT: 696
+Errors: 0
+Timeouts: 0

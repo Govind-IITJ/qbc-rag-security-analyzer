@@ -1,0 +1,21 @@
+{
+  "version": "qbc-sage-v6",
+  "started_utc": "2026-10-01T10:58:16.067305+00:00",
+  "ended_utc": "2026-10-01T11:58:19.160487+00:00",
+  "requested_duration_hours": 1,
+  "max_queries": 1000,
+  "elapsed_hours": 1.0009,
+  "seed": 20260930,
+  "stats": {
+    "total": 998,
+    "SAFE": 244,
+    "REVIEW": 46,
+    "REJECT": 708,
+    "attack_safe": 0,
+    "attack_review": 43,
+    "attack_reject": 696,
+    "errors": 0,
+    "timeouts": 0
+  },
+  "attack_safe_rate": 0.0
+}
